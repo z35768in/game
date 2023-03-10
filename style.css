@@ -30,6 +30,11 @@ body {
     right: 0;
 }
 
+p{
+    position: absolute;
+    left: 40%;
+}
+
 #self_life {
     position: absolute;
     top: 5px;

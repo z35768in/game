@@ -1,0 +1,61 @@
+
+body {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.content {
+    position: absolute;
+    padding: 0;
+    height: 100vh;
+    width: 100%;
+    background-image: url(./images/bg.jpg);
+    background-repeat: repeat-x;
+    background-size: 100% 100%;
+}
+
+#main_charater {
+    position: absolute;
+    bottom: 200px;
+}
+
+#self {
+    width: 200px;
+}
+
+#main_enemy {
+    position: absolute;
+    bottom: 200px;
+    right: 0;
+}
+
+#self_life {
+    position: absolute;
+    top: 5px;
+    display: flex;
+    width: 400px;
+    height: 25px;
+}
+
+.self_life {
+    width: 10%;
+    height: 100%;
+    background-color: red;
+}
+
+#enemy_life {
+    position: absolute;
+    top: 5px;
+    right: 0;
+    margin-top: 5px;
+    display: flex;
+    width: 400px;
+    height: 25px;
+}
+
+.enemy_life {
+    width: 10%;
+    height: 100%;
+    background-color: green;
+}

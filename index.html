@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    </style>
+</head>
+
+<body>
+    <p></p>
+    <div class="content">
+        <div id="self_life">
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+            <div class="self_life"></div>
+        </div>
+        <div id="enemy_life">
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+            <div class="enemy_life"></div>
+        </div>
+        <div id="main_charater"><img id="self" src="./images/main_face_right.png" alt=""></div>
+        <div id="main_enemy"><img id="enemy_self" src="./images/enemy.png" alt=""></div>
+        </di>
+</body>
+<script>
+    let life_left = document.getElementsByClassName('self_life');
+    let enemy_life_left = document.getElementsByClassName('enemy_life');
+    let main_life = 10;
+    let enemy_life = 10;
+    let main_size_x = 200;//主角寬
+    let main_size_y = 179;//主角高
+    let enemy_size_x = 141;//敵人寬
+    let enemy_size_y = 118;//敵人高
+    let speed = 10;//總體速度 越小越快
+    let move_left = 0;//是否向左
+    let move_right = 0;//是否向右
+    let move_top = 0;//是否向上
+    let speed_y = 5;//上升與下降速度
+    let speed_x = 5;//橫向移動速度
+    let position_x = 0;//橫向位置
+    let position_y = 0;//垂直位置
+    let position_style = document.getElementById('main_charater');//腳色
+    let enemy_move_left = 0;//敵人是否向左
+    let enemy_move_right = 0;//敵人是否向右
+    let enemy_move_top = 0;//敵人是否向上
+    let enemy_speed_y = 5;//敵人上升與下降速度
+    let enemy_speed_x = 1;//敵人橫向移動速度
+    let enemy_position_x = 0;//敵人橫向位置
+    let enemy_position_y = 0;//敵人垂直位置
+    let enemy_position_style = document.getElementById('main_enemy');//敵人腳色
+    let self = document.getElementById('self');//忘記幹嘛用的了
+    let enemy_self = document.getElementById('enemy_self');//忘記幹嘛用的了
+    let attack_time_limit = 1000;//攻擊時間
+    let attacking = 0;//是否為攻擊狀態
+    let attack_continue = 0;//攻擊已經持續多少時間
+    let ani_move = setInterval(move, speed);//橫向移動
+    let ani_drop = setInterval(drop, speed);//垂直移動
+    let ani_enemy_move = setInterval(enemy_move, speed);//
+    let ani_onhit = setInterval(onhit, speed);//打或被打
+    let muteki = 0;//無敵時間
+    let enemy_muteki = 0;//敵人無敵時間
+    let injure = 0;//受傷狀態
+    let enemy_injure = 0;//敵人受傷狀態
+    let injure_flash = 0;//受傷狀態時閃爍
+    let enemy_injure_flash = 0;//敵人受傷狀態時閃爍
+
+    window.addEventListener('load', function () {
+        enemy_position_x = window.innerWidth;
+    })
+    // 掉落
+    function drop() {
+        if (position_y < move_top) {
+            position_y = position_y + speed_y;
+        } else if (position_y == move_top) {
+            move_top = 0;
+        }
+        else if (position_y > move_top) {
+            position_y = position_y - speed_y;
+        }
+        position_style.style.bottom = 200 + position_y + 'px';
+    }
+    // 上38 下40 左37 右39 Z90 X88
+    document.addEventListener('keydown', function (e) {
+        if (e.keyCode === 37 && position_x != 0 && injure == 0) {
+            move_left = 1;
+            if (attacking == 0) self.setAttribute('src', './images/main_face_left.png');
+
+        }
+        if (e.keyCode === 39 && injure == 0) {
+            move_right = 1;
+            if (attacking == 0) self.setAttribute('src', './images/main_face_right.png');
+        }
+        if (e.keyCode === 38 && position_y == 0) move_top = 200;
+        if (e.keyCode === 88 && attacking == 0) {
+            self.setAttribute('src', './images/main_attack.gif');
+            attack();
+            setTimeout(attack_cancel, 1000);
+        }
+
+    });
+    document.addEventListener('keyup', function (e) {
+        if (e.keyCode === 37) move_left = 0;
+        if (e.keyCode === 39) move_right = 0;
+    });
+    function move() {
+        if (injure == 1 && position_x < enemy_position_x && position_x > 0) {
+            position_x = position_x + speed_x * -1;
+        }
+        else if (injure == 1 && position_x < enemy_position_x && position_x < window.innerWidth) {
+            position_x = position_x + speed_x * 1;
+        }
+        else if (position_x > 0 && position_x < window.innerWidth) {
+            position_x = position_x + speed_x * move_right - speed_x * move_left;
+        } else if (position_x < window.innerWidth) {
+            position_x = position_x + speed_x * move_right;
+        }
+        else if (position_x > 0) {
+            position_x = position_x - speed_x * move_left;
+        }
+        position_style.style.left = position_x + 'px';
+    }
+    function enemy_move() {
+        if (enemy_position_x > position_x) {
+            enemy_position_x = enemy_position_x - enemy_speed_x;
+        } else if(enemy_position_x < position_x){
+            enemy_position_x = enemy_position_x + enemy_speed_x;
+        } 
+        // else enemy_position_x = window.innerWidth;
+        enemy_position_style.style.left = enemy_position_x + 'px';
+    }
+    function onhit() {
+        if (enemy_position_x >= position_x &&
+            enemy_position_y >= position_y &&
+            enemy_position_x <= position_x + main_size_x &&
+            enemy_position_y <= position_y + main_size_y
+        ) {
+            if (attacking == 1) {
+                if (enemy_life_left.length == 0) {
+                    clearInterval(ani_move);
+                    clearInterval(ani_drop);
+                    clearInterval(ani_enemy_move);
+                    clearInterval(ani_onhit);
+                    setTimeout(win, 1000);
+                }
+                else if (enemy_muteki == 0) {
+                    enemy_life_left[enemy_life_left.length - 1].classList.remove('enemy_life');
+                    enemy_injure = 1;
+                    enemy_muteki = 1;
+                    setTimeout(enemy_weak, 2000);
+                    setTimeout(enemy_injure_status, 250);
+                    setTimeout(enemy_injure_status, 500);
+                    setTimeout(enemy_injure_status, 750);
+                    setTimeout(enemy_injure_status, 1000);
+                    setTimeout(enemy_normal, 1000);
+                }
+            } else {
+                if (life_left.length == 0) {
+                    clearInterval(ani_move);
+                    clearInterval(ani_drop);
+                    clearInterval(ani_enemy_move);
+                    clearInterval(ani_onhit);
+                    setTimeout(gameover, 1000);
+                    // window.location.reload();
+                } else if (muteki == 0) {
+                    life_left[life_left.length - 1].classList.remove('self_life');
+                    injure = 1;
+                    muteki = 1;
+                    setTimeout(weak, 2000);
+                    setTimeout(injure_status, 250);
+                    setTimeout(injure_status, 500);
+                    setTimeout(injure_status, 750);
+                    setTimeout(injure_status, 1000);
+                    setTimeout(normal, 1000);
+                }
+            }
+        }
+    }
+    function win() {
+        alert("WIN");
+    }
+    function injure_status() {
+        injure_flash = !injure_flash;
+        if (injure_flash && position_x - enemy_position_x > 0)
+            self.setAttribute('src', './images/main_face_left - hurt.png');
+        else if (injure_flash && position_x - enemy_position_x < 0)
+            self.setAttribute('src', './images/main_face_right - hurt.png');
+        else if (position_x - enemy_position_x > 0)
+            self.setAttribute('src', './images/main_face_left.png');
+        else if (position_x - enemy_position_x > 0)
+            self.setAttribute('src', './images/main_face_right.png');
+    }
+    function enemy_injure_status() {
+        enemy_injure_flash = !enemy_injure_flash;
+        if (enemy_injure_flash)
+        {enemy_self.setAttribute('src', './images/enemy_hurt.png');
+    console.log('test');}
+
+        else 
+        enemy_self.setAttribute('src', './images/enemy.png');
+    }
+    function enemy_normal() {
+        enemy_injure = 0;
+    }
+    function normal() {
+        injure = 0;
+    }
+    function enemy_normal() {
+        enemy_injure = 0;
+    }
+    function weak() {
+        muteki = 0;
+    }
+    function enemy_weak() {
+        enemy_muteki = 0;
+    }
+    function attack() {
+        attacking = 1;
+    }
+    function attack_cancel() {
+        attacking = 0;
+        if (move_left)self.setAttribute('src', './images/main_face_left.png');
+        else if (move_right)self.setAttribute('src', './images/main_face_right.png');
+    }
+    function gameover() {
+        alert("GAME OVER");
+    }
+</script>
+
+</html>
